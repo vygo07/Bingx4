@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BingX Zisky</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container glass">
+    <h1>Zisky z BingX</h1>
+    
+    <div class="input-box">
+      <input id="apiKey" type="text" placeholder="Zadej svůj API klíč..." />
+      <button onclick="saveApiKey()">Uložit klíč</button>
+    </div>
+
+    <div class="stats">
+      <p><strong>Měsíční zisk:</strong> <span id="monthlyProfit">Načítám...</span></p>
+      <p><strong>Odhadovaný měsíční zisk:</strong> <span id="estimatedProfit">Načítám...</span></p>
+      <p><strong>Winrate:</strong> <span id="winrate">Načítám...</span></p>
+      <p><strong>Poplatky:</strong> <span id="fees">Načítám...</span></p>
+    </div>
+
+    <div id="profitTableContainer">
+      <h2>Posledních 10 dní</h2>
+      <table id="profitTable">
+        <thead>
+          <tr><th>Datum</th><th>Zisk</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <canvas id="chart" width="400" height="200"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

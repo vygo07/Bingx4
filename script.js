@@ -1,91 +1,39 @@
-let apiKey = localStorage.getItem('bingxApiKey');
-
-document.addEventListener("DOMContentLoaded", () => {
-  if (apiKey) {
-    fetchAndDisplay();
-    setInterval(fetchAndDisplay, 60000); // aktualizuj každou minutu
-  }
-});
-
-function saveApiKey() {
-  const keyInput = document.getElementById('apiKey');
-  apiKey = keyInput.value.trim();
-  localStorage.setItem('bingxApiKey', apiKey);
-  fetchAndDisplay();
+body {
+  font-family: Arial, sans-serif;
+  background: #0b0f1a;
+  color: white;
+  margin: 0;
+  padding: 20px;
 }
-
-async function fetchAndDisplay() {
-  try {
-    // Simulace dat místo reálného volání API:
-    const response = await fetch("https://raw.githubusercontent.com/openai/translations/main/examples/finance/dailyPnL.json");
-    const data = await response.json(); // Očekáváme [{ date: "...", profit: ..., fee: ... }]
-
-    const last10 = data.slice(-10).reverse();
-    const tbody = document.querySelector('#profitTable tbody');
-    tbody.innerHTML = '';
-    let monthlyProfit = 0;
-    let feeSum = 0;
-    let wins = 0;
-
-    const chartData = {
-      labels: [],
-      profits: []
-    };
-
-    last10.forEach(entry => {
-      const tr = document.createElement('tr');
-      tr.className = entry.profit >= 0 ? 'profit' : 'loss';
-
-      tr.innerHTML = `<td>${entry.date}</td><td>${entry.profit.toFixed(2)} USDT</td>`;
-      tbody.appendChild(tr);
-
-      chartData.labels.push(entry.date);
-      chartData.profits.push(entry.profit);
-
-      monthlyProfit += entry.profit;
-      feeSum += entry.fee;
-      if (entry.profit > 0) wins++;
-    });
-
-    const avg7 = chartData.profits.slice(0, 7).reduce((a, b) => a + b, 0) / 7;
-    const estProfit = avg7 * 30;
-    const winrate = (wins / last10.length) * 100;
-
-    document.getElementById('monthlyProfit').textContent = monthlyProfit.toFixed(2) + ' USDT';
-    document.getElementById('estimatedProfit').textContent = estProfit.toFixed(2) + ' USDT';
-    document.getElementById('winrate').textContent = winrate.toFixed(1) + '%';
-    document.getElementById('fees').textContent = feeSum.toFixed(2) + ' USDT';
-
-    drawChart(chartData);
-  } catch (err) {
-    console.error("Chyba načítání:", err);
-  }
+header h1 {
+  text-align: center;
 }
-
-let chart;
-function drawChart(data) {
-  const ctx = document.getElementById('chart').getContext('2d');
-  if (chart) chart.destroy();
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: data.labels,
-      datasets: [{
-        label: 'Denní zisk',
-        data: data.profits,
-        borderColor: 'lime',
-        backgroundColor: 'rgba(0,255,0,0.1)',
-        tension: 0.2,
-        fill: true,
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: false
-        }
-      }
-    }
-  });
+.top-bar {
+  text-align: right;
+  margin-bottom: 20px;
+}
+.input-key {
+  text-align: center;
+  margin: 20px 0;
+}
+input {
+  padding: 8px;
+  font-size: 16px;
+}
+button {
+  padding: 8px 16px;
+  font-size: 16px;
+  margin-left: 10px;
+}
+.stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+}
+.card {
+  background: #1c1f2a;
+  padding: 20px;
+  border-radius: 10px;
+  width: 30%;
+  text-align: center;
 }

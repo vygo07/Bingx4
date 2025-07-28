@@ -1,56 +1,74 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(to bottom right, #1e1e2f, #2a2a3d);
-  color: white;
+let rateCZK = 1;
+let rateUSD = 1;
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadKey();
+  fetchExchangeRates();
+});
+
+function saveKey() {
+  const key = document.getElementById("apiKeyInput").value;
+  localStorage.setItem("bingxKey", key);
+  alert("API klíč uložen");
 }
 
-.container {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border-radius: 20px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+function loadKey() {
+  const key = localStorage.getItem("bingxKey");
+  if (key) document.getElementById("apiKeyInput").value = key;
 }
 
-.input-box {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+function updateCurrency() {
+  fetchData();
 }
 
-input[type="text"] {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
+function fetchExchangeRates() {
+  fetch("https://api.cnb.cz/cnbapi/exrates/daily?date=latest&lang=cz")
+    .then(res => res.json())
+    .then(data => {
+      const usd = data.rates.find(r => r.shortName === "USD");
+      if (usd) {
+        rateUSD = 1 / usd.rate;
+        fetchData();
+      }
+    });
 }
 
-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  background: #007aff;
-  color: white;
-  cursor: pointer;
+function fetchData() {
+  const apiKey = localStorage.getItem("bingxKey");
+  if (!apiKey) return alert("Nejprve zadej API klíč");
+
+  fetch("https://open-api.bingx.com/openApi/swap/v2/user/incomeRecords", {
+    method: "GET",
+    headers: {
+      "X-BX-APIKEY": apiKey
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const currency = document.getElementById("currency").value;
+    const rate = currency === "czk" ? 1 : rateUSD;
+
+    const records = data.data || [];
+
+    const today = new Date().toISOString().slice(0, 10);
+    const daily = records
+      .filter(r => r.time.startsWith(today))
+      .reduce((sum, r) => sum + parseFloat(r.realizedPnl), 0);
+
+    const monthly = records.reduce((sum, r) => sum + parseFloat(r.realizedPnl), 0);
+    const yearly = monthly * 12;
+
+    document.getElementById("daily").innerText = formatMoney(daily * rate, currency);
+    document.getElementById("monthly").innerText = formatMoney(monthly * rate, currency);
+    document.getElementById("yearly").innerText = formatMoney(yearly * rate, currency);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Chyba při načítání dat z BingX.");
+  });
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-table th, table td {
-  padding: 8px;
-  text-align: center;
-}
-
-tr.profit {
-  background-color: #003f1f;
-}
-
-tr.loss {
-  background-color: #3f0000;
+function formatMoney(value, currency) {
+  const symbol = currency === "czk" ? "Kč" : "$";
+  return `${value >= 0 ? '+' : '-'}${Math.abs(value).toFixed(2)} ${symbol}`;
 }

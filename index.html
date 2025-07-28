@@ -2,40 +2,37 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BingX Zisky</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BingX Dashboard</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container glass">
-    <h1>Zisky z BingX</h1>
-    
-    <div class="input-box">
-      <input id="apiKey" type="text" placeholder="Zadej svůj API klíč..." />
-      <button onclick="saveApiKey()">Uložit klíč</button>
+  <header>
+    <h1>📊 Můj BingX Zisk</h1>
+    <div class="top-bar">
+      <label for="currency">Měna:</label>
+      <select id="currency" onchange="updateCurrency()">
+        <option value="czk">CZK</option>
+        <option value="usd">USD</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <div class="input-key">
+      <input id="apiKeyInput" type="password" placeholder="Zadej API Key" />
+      <button onclick="saveKey()">🔐 Uložit klíč</button>
     </div>
 
     <div class="stats">
-      <p><strong>Měsíční zisk:</strong> <span id="monthlyProfit">Načítám...</span></p>
-      <p><strong>Odhadovaný měsíční zisk:</strong> <span id="estimatedProfit">Načítám...</span></p>
-      <p><strong>Winrate:</strong> <span id="winrate">Načítám...</span></p>
-      <p><strong>Poplatky:</strong> <span id="fees">Načítám...</span></p>
+      <div class="card"><h3>Denní zisk</h3><p id="daily">--</p></div>
+      <div class="card"><h3>Měsíční zisk</h3><p id="monthly">--</p></div>
+      <div class="card"><h3>Odhad ročního zisku</h3><p id="yearly">--</p></div>
     </div>
 
-    <div id="profitTableContainer">
-      <h2>Posledních 10 dní</h2>
-      <table id="profitTable">
-        <thead>
-          <tr><th>Datum</th><th>Zisk</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+    <button onclick="fetchData()">🔄 Načíst data z BingX</button>
+  </main>
 
-    <canvas id="chart" width="400" height="200"></canvas>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
